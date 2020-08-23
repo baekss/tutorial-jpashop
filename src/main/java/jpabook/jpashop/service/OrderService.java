@@ -13,6 +13,7 @@ import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.repository.OrderSearch;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,6 +28,7 @@ public class OrderService {
 	/**
 	 * 주문
 	 */
+	@Transactional
 	public Long order(Long memberId, Long itemId, int count) {
 		
 		//엔티티 조회
@@ -60,7 +62,7 @@ public class OrderService {
 		order.cancel();
 	}
 	
-	/*public List<Order> findOrders(OrderSearch orderSearch) {
-		return orderRepository.findAll(orderSearch);
-	}*/
+	public List<Order> findOrders(OrderSearch orderSearch) {
+		return orderRepository.findAllByString(orderSearch);
+	}
 }
