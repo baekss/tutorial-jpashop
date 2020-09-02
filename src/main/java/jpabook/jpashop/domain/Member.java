@@ -30,6 +30,7 @@ public class Member {
 	@Embedded
 	private Address address;
 	
+	//@JsonIgnore api 스펙에 종속적인 컨셉을 Entity에서 사용하지 말자.
 	@OneToMany(mappedBy="member")
 	private List<Order> orders = new ArrayList<>();
 }
