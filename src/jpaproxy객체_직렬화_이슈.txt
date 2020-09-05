@@ -1,0 +1,44 @@
+﻿com.fasterxml.jackson.databind.ser.std.BeanSerializerBase 클래스의 #serializeFields : void 메소드를 주목하시면 됩니다.
+
+또한, 기억해야 할 것은 직렬화 대상 객체는 jpabook.jpashop.domain.Member$HibernateProxy 즉, "프록시 객체"라는 것 입니다.
+
+이 객체는 jpabook.jpashop.domain.Member 객체의 필드에 추가하여 또 하나 가진 필드가 있습니다. "hibernateLazyInitializer" 입니다.
+
+#serializeFields 메소드에서 props 변수가 직렬화할 필드목록 배열을 나타냅니다. 살펴보면 다음과 같습니다.
+props[0] : property 'id'
+props[1] : property 'name'
+props[2] : property 'address'
+props[3] : property 'orders'
+props[4] : property 'hibernateLazyInitializer'
+
+* orders에 @JsonIgnore가 붙어있으면 props는 orders를 제외한 배열. 다음과 같습니다.
+props[0] : property 'id'
+props[1] : property 'name'
+props[2] : property 'address'
+props[3] : property 'hibernateLazyInitializer'
+
+다음으로 주목해야 할 것은 #serializeFields 메소드에서의 예외처리 부분입니다. 다음과 같습니다.
+try {
+    ........
+    for (final int len = props.length; i < len; ++i) {
+       ........
+       if (prop != null) {
+           prop.serializeAsField(bean, gen, provider);
+       }
+    }
+    ........
+} catch (Exception e) {
+           ...생략...
+} catch (StackOverflowError e) {
+           ...생략...
+}	
+
+
+따라서 @JsonIgnore가 없을 때는 props[3]값인 'orders'를 작업할 때 양방향관계에 의한 순환참조로 인해 무한재귀가 동작하면서 Error가 발생하여
+catch (StackOverflowError e) 이쪽으로 빠지게 됩니다. 강의에서 첫번째 이슈 케이스에 해당합니다.
+
+만일 @JsonIgnore가 있을 때는 props[3]값인 'hibernateLazyInitializer'를 작업할 때 No serializer found Exception이 발생하여
+catch (Exception e) 이쪽으로 빠지게 됩니다. 강의에서 두번째 이슈 케이스에 해당합니다.
+
+* 첫번째 이슈 케이스에서 응답이 된 것은 StackOverflowError 가 발생하면서 response에 담아놨던 것을 강제 flush하고 뻗어버려서 그런 듯 합니다.
+* @JsonIgnore가 없을 때 디버그 모드로 props[3]값인 'orders'를 작업할 시점 때 prop = null로 바꿔치기 할당하여 props[4]인 'hibernateLazyInitializer'를 작업하게 해보았더니 No serializer found Exception 똑같이 발생하였습니다.

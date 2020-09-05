@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,7 +32,7 @@ public class Member {
 	@Embedded
 	private Address address;
 	
-	//@JsonIgnore api 스펙에 종속적인 컨셉을 Entity에서 사용하지 말자.
+	@JsonIgnore //api 스펙에 종속적인 컨셉을 Entity에서 사용하지 말자.
 	@OneToMany(mappedBy="member")
 	private List<Order> orders = new ArrayList<>();
 }
