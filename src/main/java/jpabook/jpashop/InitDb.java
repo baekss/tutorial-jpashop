@@ -50,7 +50,7 @@ public class InitDb {
 			Book book1 = createBook("JPA1 BOOK", 10000, 100);
 			em.persist(book1);
 			
-			Book book2 = createBook("JP21 BOOK", 20000, 100);
+			Book book2 = createBook("JPA2 BOOK", 20000, 100);
 			em.persist(book2);
 			
 			OrderItem orderItem1 = OrderItem.createOrderItem(book1, 10000, 1);
