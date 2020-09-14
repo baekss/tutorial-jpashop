@@ -39,6 +39,7 @@ public class Order {
 	@JoinColumn(name="member_id")
 	private Member member;
 	
+	//@BatchSize(size=1000) //컬렉션에 적용
 	@OneToMany(mappedBy="order", cascade=CascadeType.ALL)
 	private List<OrderItem> orderItems = new ArrayList<>();
 	

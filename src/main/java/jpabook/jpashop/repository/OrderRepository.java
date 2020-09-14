@@ -105,6 +105,16 @@ public class OrderRepository {
 				).getResultList();
 	}
 	
+	public List<Order> findAllWithMemberDelivery(int offset, int limit) {
+		return em.createQuery(
+				"select o from Order o"+
+				" join fetch o.member m"+
+				" join fetch o.delivery d", Order.class)
+				.setFirstResult(offset)
+				.setMaxResults(limit)
+				.getResultList();
+	}
+	
 	public List<Order> findAllWithItem() {
 		//fetch join 시 1:N 관계에 의해 Order 1개에 OrderItem이 N개 이므로 결과도 카디널리티 곱으로 나온다.
 		//따라서 동일한 Order를 N개로 받지 않기 위해 JPQL의 distinct를 적용한다.

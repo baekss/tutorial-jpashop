@@ -4,12 +4,13 @@ spring:
     password: 
     driver-class-name: org.h2.Driver  jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     properties:      hibernate:
-        show_sql: true
+#        show_sql: true
         format_sql: true
+        default_batch_fetch_size: 2
         
 logging:
   level:    org.hibernate.SQL: debug 
-    org.hibernate.type: trace
+#    org.hibernate.type: trace
         

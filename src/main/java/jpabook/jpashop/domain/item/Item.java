@@ -18,6 +18,7 @@ import jpabook.jpashop.exception.NotEnoughStockException;
 import lombok.Getter;
 import lombok.Setter;
 
+//@BatchSize(size=100)//xToOne에 적용
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="DTYPE")
