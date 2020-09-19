@@ -1,5 +1,9 @@
 package jpabook.jpashop.api;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +18,8 @@ import jpabook.jpashop.domain.OrderItem;
 import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.order.query.OrderFlatDto;
+import jpabook.jpashop.repository.order.query.OrderItemQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
 import lombok.Getter;
@@ -87,6 +93,22 @@ public class OrderApiController {
 	@GetMapping("/api/v5/orders")
 	public List<OrderQueryDto> ordersV5() {
 		return orderQueryRepository.findAllByDtoOptimization();
+	}
+	
+	@GetMapping("/api/v6/orders")
+	public List<OrderQueryDto> ordersV6() {
+		List<OrderFlatDto> flats = orderQueryRepository.findAllByDtoFlat();
+		return flats.stream()
+				.collect(
+						//groupingBy : key는 OrderQueryDto객체, value는 List<OrderFlatDto>. 즉, { OrderQueryDto : [OrderFlatDto] }
+						groupingBy(o -> new OrderQueryDto(o.getOrderId(), o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+						//mapping : { OrderQueryDto : [OrderFlatDto] } 에서 value를 OrderItemQueryDto으로 변경. 즉, { OrderQueryDto : [OrderItemQueryDto] }
+						mapping(o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), toList()))
+				).entrySet().stream()
+				//[ { OrderQueryDto : [OrderItemQueryDto] }, { OrderQueryDto : [OrderItemQueryDto] } ] 각 요소에서 key는 OrderQueryDto객체, value는 [OrderItemQueryDto]
+				.map(e -> new OrderQueryDto(e.getKey().getOrderId(), e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getOrderStatus(), e.getKey().getAddress(), e.getValue()))
+				.sorted((p1, p2) -> Long.compare(p1.getOrderId(), p2.getOrderId()))
+				.collect(toList());
 	}
 	
 	@Getter
